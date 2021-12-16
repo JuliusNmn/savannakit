@@ -24,9 +24,12 @@ public protocol SyntaxTextViewDelegate: class {
 	func textViewDidBeginEditing(_ syntaxTextView: SyntaxTextView)
 	
 	func lexerForSource(_ source: String) -> Lexer
-	
+    	
+    func getViewController() -> UIViewController?
 }
-
+protocol ViewControllerProvider {
+    func getViewController() -> UIViewController?
+}
 // Provide default empty implementations of methods that are optional.
 public extension SyntaxTextViewDelegate {
     func didChangeText(_ syntaxTextView: SyntaxTextView) { }
@@ -46,8 +49,17 @@ struct ThemeInfo {
 	
 }
 
+
 @IBDesignable
-open class SyntaxTextView: View {
+open class SyntaxTextView: View, ViewControllerProvider {
+    func getViewController() -> UIViewController? {
+        return delegate?.getViewController()
+    }
+    
+    
+    public func setCodeIssues(_ issues: [CodeIssue]) {
+        textView.setCodeIssues(issues)
+    }
 
 	var previousSelectedRange: NSRange?
 	
@@ -58,6 +70,7 @@ open class SyntaxTextView: View {
 	public var contentTextView: TextView {
 		return textView
 	}
+    
 	
 	public weak var delegate: SyntaxTextViewDelegate? {
 		didSet {
@@ -110,6 +123,7 @@ open class SyntaxTextView: View {
     public required init?(coder aDecoder: NSCoder) {
         textView = SyntaxTextView.createInnerTextView()
         super.init(coder: aDecoder)
+        textView.viewControllerProvider = self
         setup()
     }
 	
@@ -546,5 +560,4 @@ open class SyntaxTextView: View {
 		textStorage.endEditing()
 		
 	}
-	
 }

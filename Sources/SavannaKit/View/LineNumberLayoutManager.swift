@@ -16,10 +16,37 @@ import AppKit
 import UIKit
 #endif
 
+class HashableInt: Hashable
+{
+    static func == (lhs: HashableInt, rhs: HashableInt) -> Bool {
+        return lhs.hashValue == rhs.hashValue
+    }
+    
+    
+    init(_ value: Int) {
+        self.hashValue = value
+    }
+    var hashValue: Int
+    
+}
+
 class LineNumberLayoutManager: NSLayoutManager {
 	
 	var lastParaLocation = 0
 	var lastParaNumber = 0
+    
+    private var codeIssues: [HashableInt:[CodeIssue]] = [:]
+    
+    public func setCodeIssues(issues: [CodeIssue]) {
+        codeIssues = [:]
+        for issue in issues {
+            let line = HashableInt(issue.line)
+            var issuesAtLine = codeIssues[line] ?? []
+            
+            issuesAtLine.append(issue)
+            codeIssues[line] = issuesAtLine
+        }
+    }
 	
 	func _paraNumber(for charRange: NSRange) -> Int {
 		//  NSString does not provide a means of efficiently determining the paragraph number of a range of text.  This code
@@ -91,7 +118,7 @@ class LineNumberLayoutManager: NSLayoutManager {
 		
 		var gutterRect: CGRect = .zero
 		var paraNumber: Int = 0
-		
+        		
 		enumerateLineFragments(forGlyphRange: glyphsToShow, using: {(_ rect: CGRect, _ usedRect: CGRect, _ textContainer: NSTextContainer?, _ glyphRange: NSRange, _ stop: UnsafeMutablePointer<ObjCBool>?) -> Void in
 			
 			let charRange: NSRange = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
@@ -103,6 +130,22 @@ class LineNumberLayoutManager: NSLayoutManager {
 				paraNumber = self._paraNumber(for: charRange)
 				let ln = "\(Int(UInt(paraNumber)) + 1)"
 				let size: CGSize = ln.size(withAttributes: atts)
+                let issuesForLine = self.codeIssues[HashableInt(paraNumber)]
+                let isError = issuesForLine?.contains(where: { i in
+                    i.type == .Error
+                }) ?? false
+                let isWarning = issuesForLine?.contains(where: { i in
+                    i.type == .Warning
+                }) ?? false
+                if isError {
+                    UIColor.red.setFill()
+                    let path = UIBezierPath(roundedRect: CGRect(x: 0, y: 0, width: 0, height: 0), cornerRadius: 1.0)
+                    path.fill()
+                } else if isWarning {
+                    UIColor.yellow.setFill()
+                    let path = UIBezierPath(roundedRect: CGRect(x: 0, y: 0, width: 0, height: 0), cornerRadius: 1.0)
+                    path.fill()
+                }
 				ln.draw(in: gutterRect.offsetBy(dx: gutterRect.width - 4 - size.width, dy: 0), withAttributes: atts)
 			}
 		})

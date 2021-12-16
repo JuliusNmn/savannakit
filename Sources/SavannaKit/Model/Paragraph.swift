@@ -23,7 +23,9 @@ struct Paragraph {
 	var string: String {
 		return "\(number)"
 	}
-	
+    
+    var issues : [CodeIssue]
+    
 	func attributedString(for style: LineNumbersStyle) -> NSAttributedString {
 		
 		let attr = NSMutableAttributedString(string: string)

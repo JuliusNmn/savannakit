@@ -19,8 +19,71 @@ protocol InnerTextViewDelegate: class {
 	func didUpdateCursorFloatingState()
 }
 
-class InnerTextView: TextView {
-	
+
+class InnerTextView: TextView, UIPopoverPresentationControllerDelegate {
+    
+    override init(frame: CGRect, textContainer: NSTextContainer?) {
+        super.init(frame: frame, textContainer: textContainer)
+        
+        let r = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        addGestureRecognizer(r)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    // we need access to the view controller to display the cde issue popover
+    // this is in innertextview instead of syntaxtextview because innertextview keeps track of line numbers/paragraphs
+    var viewControllerProvider: ViewControllerProvider?
+    
+    @objc
+    func handleTap(from recognizer: UITapGestureRecognizer) {
+        
+        // find out which line number was tapped.
+        // if an issue exists, show a popul
+        let location = recognizer.location(in: self)
+        
+        if location.x < gutterWidth {
+            guard let paragraphs = cachedParagraphs else { return }
+            for p in paragraphs {
+                if location.y < p.rect.maxY && location.y > p.rect.minY {
+                    if !p.issues.isEmpty {
+                        displayIssuesPopover(for: p)
+                    }
+                    break
+                }
+            }
+        }
+    }
+    
+    var issues: [CodeIssue] = []
+    
+    func setCodeIssues(_ issues: [CodeIssue]) {
+        self.issues = issues
+        
+        cachedParagraphs = generateParagraphs(for: self, flipRects: false, issues: issues)
+        
+        setNeedsDisplay()
+    }
+    
+    func displayIssuesPopover(for paragraph: Paragraph) {
+        
+        let popoverContentController = CodeIssuesPopoverViewController(issues: paragraph.issues)
+        
+        popoverContentController.modalPresentationStyle = .popover
+        
+        if let popoverPresentationController = popoverContentController.popoverPresentationController {
+            popoverPresentationController.permittedArrowDirections = .up
+            popoverPresentationController.sourceView = self
+            popoverPresentationController.sourceRect = CGRect(origin: paragraph.rect.origin, size: CGSize(width: gutterWidth, height: paragraph.rect.height))
+            popoverPresentationController.delegate = self
+            
+            viewControllerProvider?.getViewController()?.present(popoverContentController, animated: true, completion: nil)
+            
+        }
+    }
+    
 	weak var innerDelegate: InnerTextViewDelegate?
 	
 	var theme: SyntaxColorTheme?
@@ -102,7 +165,7 @@ class InnerTextView: TextView {
                 
             } else {
                 
-                paragraphs = generateParagraphs(for: textView, flipRects: false)
+                paragraphs = generateParagraphs(for: textView, flipRects: false, issues: issues)
                 textView.cachedParagraphs = paragraphs
                 
             }
@@ -115,11 +178,12 @@ class InnerTextView: TextView {
 			
 			drawLineNumbers(paragraphs, in: rect, for: self)
 			
+            
 		}
 		
-
+        
+        
 		super.draw(rect)
-
 	}
 	#endif
 	
@@ -171,6 +235,8 @@ class InnerTextView: TextView {
 		return superRect
 	}
 	
+    
+    
 	#endif
 	
 }

@@ -47,7 +47,7 @@ extension TextView {
 	
 }
 
-func generateParagraphs(for textView: InnerTextView, flipRects: Bool = false) -> [Paragraph] {
+func generateParagraphs(for textView: InnerTextView, flipRects: Bool = false, issues: [CodeIssue]) -> [Paragraph] {
 	
 	let range = NSRange(location: 0, length: (textView.text as NSString).length)
 	
@@ -59,10 +59,15 @@ func generateParagraphs(for textView: InnerTextView, flipRects: Bool = false) ->
 		i += 1
 		
 		let rect = textView.paragraphRectForRange(range: paragraphRange)
+        
 		
-		let paragraph = Paragraph(rect: rect, number: i)
+        let paragraph = Paragraph(rect: rect, number: i, issues: issues.filter({ issue in
+            issue.line == i
+        }))
+        
 		paragraphs.append(paragraph)
 		
+        
 	}
 	
 	if textView.text.isEmpty || textView.text.hasSuffix("\n") {
@@ -90,7 +95,7 @@ func generateParagraphs(for textView: InnerTextView, flipRects: Bool = false) ->
 		
 		
 		i += 1
-		let endParagraph = Paragraph(rect: rect, number: i)
+		let endParagraph = Paragraph(rect: rect, number: i, issues: [])
 		paragraphs.append(endParagraph)
 		
 	}
@@ -176,8 +181,30 @@ func drawLineNumbers(_ paragraphs: [Paragraph], in rect: CGRect, for textView: I
 //		Color.red.withAlphaComponent(0.4).setFill()
 //		paragraph.rect.fill()
 		
+        let isError = paragraph.issues.contains(where: { i in
+            i.type == .Error
+        })
+        let isWarning = paragraph.issues.contains(where: { i in
+            i.type == .Warning
+        })
+        let inset = 1.0
+        
+        if isError {
+            UIColor(displayP3Red: 1.0, green: 0.2, blue: 0.2, alpha: 0.8).setFill()
+            
+        } else if isWarning {
+            UIColor(displayP3Red: 1.0, green: 1.0, blue: 0.2, alpha: 0.8).setFill()
+        }
+        
+        if isError || isWarning {
+            let path = UIBezierPath(roundedRect: CGRect(x: 0 + inset, y: drawRect.origin.y + inset, width: gutterWidth - inset, height: drawRect.height - inset), cornerRadius: 5.0)
+            path.fill()
+        }
+        
 		attr.draw(in: drawRect)
 		
+        
+        
 	}
 
 }

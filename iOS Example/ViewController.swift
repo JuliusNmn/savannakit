@@ -25,9 +25,12 @@ class ViewController: UIViewController {
 							This is an example of SavannaKit.
 							This example highlights words that are longer than 6 characters in red.
 							"""
-		
+        
+        let issue1 = CodeIssue(message: "Error description", line: 1, charStart: 4, charEnd: 8, type: .Error)
+        let issue2 = CodeIssue(message: "Warning description", line: 2, charStart: 4, charEnd: 8, type: .Warning)
+                                                                      
+        syntaxTextView.setCodeIssues([issue1 , issue2])
 	}
-	
 }
 
 extension ViewController: SyntaxTextViewDelegate {
@@ -45,6 +48,10 @@ extension ViewController: SyntaxTextViewDelegate {
 	func lexerForSource(_ source: String) -> Lexer {
 		return lexer
 	}
+    
+    func getViewController() -> UIViewController? {
+        return self
+    }
 	
 }
 

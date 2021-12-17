@@ -31,7 +31,7 @@ struct Paragraph {
 		let attr = NSMutableAttributedString(string: string)
 		let range = NSMakeRange(0, attr.length)
 		
-		let attributes: [NSAttributedStringKey: Any] = [
+        let attributes: [NSAttributedString.Key: Any] = [
 			.font: style.font,
 			.foregroundColor : style.textColor
 		]

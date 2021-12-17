@@ -72,11 +72,7 @@ open class SyntaxTextView: View, ViewControllerProvider {
 	}
     
 	
-	public weak var delegate: SyntaxTextViewDelegate? {
-		didSet {
-			didUpdateText()
-		}
-	}
+	public weak var delegate: SyntaxTextViewDelegate?
 	
 	var ignoreSelectionChange = false
 	

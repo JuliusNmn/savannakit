@@ -50,6 +50,10 @@
 		BEF8B64D20B88782006B85E9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BEF8B64B20B88782006B85E9 /* LaunchScreen.storyboard */; };
 		BEF8B65220B888CA006B85E9 /* SavannaKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEDA3F351E380E5D00B5091C /* SavannaKit.framework */; };
 		BEF8B65320B888CA006B85E9 /* SavannaKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = BEDA3F351E380E5D00B5091C /* SavannaKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		C66C5A19276CAC3800702098 /* CodeIssue.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66C5A18276CAC3800702098 /* CodeIssue.swift */; };
+		C66C5A1A276CAC3800702098 /* CodeIssue.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66C5A18276CAC3800702098 /* CodeIssue.swift */; };
+		C66C5A1C276CAC4E00702098 /* CodeIssuesPopoverViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66C5A1B276CAC4E00702098 /* CodeIssuesPopoverViewController.swift */; };
+		C66C5A1D276CAC4E00702098 /* CodeIssuesPopoverViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66C5A1B276CAC4E00702098 /* CodeIssuesPopoverViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -117,6 +121,8 @@
 		BEF8B64920B88782006B85E9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BEF8B64C20B88782006B85E9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		BEF8B64E20B88782006B85E9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C66C5A18276CAC3800702098 /* CodeIssue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CodeIssue.swift; sourceTree = "<group>"; };
+		C66C5A1B276CAC4E00702098 /* CodeIssuesPopoverViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CodeIssuesPopoverViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -223,6 +229,7 @@
 				BE42803A2038C3AA00C8FE24 /* Paragraphs.swift */,
 				BE21904A2053318600BFB99A /* SyntaxTextViewLayoutManager.swift */,
 				BEED01AC209CE2820058219D /* LineNumberLayoutManager.swift */,
+				C66C5A1B276CAC4E00702098 /* CodeIssuesPopoverViewController.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -246,6 +253,7 @@
 				BEC34E9320EE74AC00DE7411 /* RegexLexer.swift */,
 				BE99F5F81F07E6240076CDEF /* Paragraph.swift */,
 				BE99F5F91F07E6240076CDEF /* SyntaxColorTheme.swift */,
+				C66C5A18276CAC3800702098 /* CodeIssue.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -403,6 +411,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -459,7 +468,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				BE71CB8A1F125E7500C6B93E /* String+Range.swift in Sources */,
+				C66C5A1D276CAC4E00702098 /* CodeIssuesPopoverViewController.swift in Sources */,
 				BEED01AE209E4D010058219D /* LineNumberLayoutManager.swift in Sources */,
+				C66C5A1A276CAC3800702098 /* CodeIssue.swift in Sources */,
 				BEE5D952202789840040C72A /* Paragraph.swift in Sources */,
 				BE99F6011F07E6240076CDEF /* ASTVisualizer.swift in Sources */,
 				BEC34E9520EE74AC00DE7411 /* RegexLexer.swift in Sources */,
@@ -491,11 +502,13 @@
 				BEE5D947202788680040C72A /* Token.swift in Sources */,
 				BE99F6061F07E6240076CDEF /* SyntaxTextView.swift in Sources */,
 				BE99F6081F07E6240076CDEF /* Types.swift in Sources */,
+				C66C5A1C276CAC4E00702098 /* CodeIssuesPopoverViewController.swift in Sources */,
 				BE71CB861F125D0400C6B93E /* InnerTextView.swift in Sources */,
 				BEED01AD209CE2820058219D /* LineNumberLayoutManager.swift in Sources */,
 				BE71CB891F125E7500C6B93E /* String+Range.swift in Sources */,
 				BEE5D94B2027887E0040C72A /* Lexer.swift in Sources */,
 				BE99F6041F07E6240076CDEF /* SyntaxColorTheme.swift in Sources */,
+				C66C5A19276CAC3800702098 /* CodeIssue.swift in Sources */,
 				BE42803B2038C3AA00C8FE24 /* Paragraphs.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -753,7 +766,7 @@
 				PRODUCT_NAME = SavannaKit;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -780,7 +793,7 @@
 				PRODUCT_NAME = SavannaKit;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};

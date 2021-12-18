@@ -191,7 +191,7 @@ extension SyntaxTextView {
 		
 		open func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
 			
-			return self.shouldChangeText(insertingText: text)
+            return self.shouldChangeText(replaceRange: range, insertingText: text)
 		}
 		
 		public func textViewDidBeginEditing(_ textView: UITextView) {
@@ -201,24 +201,10 @@ extension SyntaxTextView {
 		
 		open func textViewDidChange(_ textView: UITextView) {
 			
-			didUpdateText()
 			
-		}
-		
-		func didUpdateText() {
-			
-			self.invalidateCachedTokens()
-			self.textView.invalidateCachedParagraphs()
+            self.colorSyntax()
 			textView.setNeedsDisplay()
 			
-			if let delegate = delegate {
-				colorTextView(lexerForSource: { (source) -> Lexer in
-					return delegate.lexerForSource(source)
-				})
-				
-				delegate.didChangeText(self)
-
-			}
 			
 		}
 	
@@ -233,7 +219,7 @@ extension SyntaxTextView {
 
 extension SyntaxTextView {
 
-	func shouldChangeText(insertingText: String) -> Bool {
+    func shouldChangeText(replaceRange: NSRange, insertingText: String) -> Bool {
 
 		let selectedRange = textView.selectedRange
 
@@ -241,6 +227,7 @@ extension SyntaxTextView {
 
 		var insertingText = insertingText
 		
+        // match indentation level
 		if insertingText == "\n" {
 			
 			let nsText = textView.text as NSString
@@ -282,8 +269,11 @@ extension SyntaxTextView {
 		
 		textStorage = textView.textStorage
 		#endif
+        
+        
 		
 		guard let cachedTokens = cachedTokens else {
+            delegate?.didEditText(syntaxTextView: self, range: replaceRange, text: insertingText)
 			return true
 		}
 			
@@ -297,10 +287,12 @@ extension SyntaxTextView {
 				if insertingText == "", selectedRange.lowerBound == range.upperBound {
 					textStorage.replaceCharacters(in: range, with: insertingText)
 					
-					didUpdateText()
+                    delegate?.didEditText(syntaxTextView: self, range: range, text: "")
 					
 					updateSelectedRange(NSRange(location: range.lowerBound, length: 0))
-
+                    
+                    // we have to call this manually
+                    textViewDidChange(textView)
 					return false
 				}
 
@@ -338,17 +330,18 @@ extension SyntaxTextView {
 					if selectedRange.location <= range.location || selectedRange.upperBound >= range.upperBound {
 						// Editor placeholder is part of larger selected text,
 						// so allow system inserting.
+                        delegate?.didEditText(syntaxTextView: self, range: selectedRange, text: insertingText)
 						return true
 					}
 					
-//					(textView.undoManager?.prepare(withInvocationTarget: self) as? TextView).replace
 					
 					textStorage.replaceCharacters(in: range, with: insertingText)
+                    delegate?.didEditText(syntaxTextView: self, range: range, text: insertingText)
 					
-					didUpdateText()
 					
 					updateSelectedRange(NSRange(location: range.lowerBound + insertingText.count, length: 0))
-
+                    // we have to call this manually
+                    textViewDidChange(textView)
 					return false
 				}
 				
@@ -360,12 +353,16 @@ extension SyntaxTextView {
 
 			textStorage.replaceCharacters(in: selectedRange, with: insertingText)
 			
-			didUpdateText()
+            delegate?.didEditText(syntaxTextView: self, range: selectedRange, text: insertingText)
 			
 			updateSelectedRange(NSRange(location: selectedRange.lowerBound + insertingText.count, length: 0))
 
+            // we have to call this manually
+            textViewDidChange(textView)
 			return false
 		}
+        
+        delegate?.didEditText(syntaxTextView: self, range: replaceRange, text: insertingText)
 		
 		return true
 	}

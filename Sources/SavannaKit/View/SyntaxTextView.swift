@@ -16,8 +16,8 @@ import CoreGraphics
 #endif
 
 public protocol SyntaxTextViewDelegate: class {
-	
-	func didChangeText(_ syntaxTextView: SyntaxTextView)
+    
+    func didEditText(syntaxTextView: SyntaxTextView, range: NSRange, text: String)
 
 	func didChangeSelectedRange(_ syntaxTextView: SyntaxTextView, selectedRange: NSRange)
 	
@@ -32,7 +32,7 @@ protocol ViewControllerProvider {
 }
 // Provide default empty implementations of methods that are optional.
 public extension SyntaxTextViewDelegate {
-    func didChangeText(_ syntaxTextView: SyntaxTextView) { }
+    func didEditText(syntaxTextView: SyntaxTextView, range: NSRange, text: String) { }
 	
     func didChangeSelectedRange(_ syntaxTextView: SyntaxTextView, selectedRange: NSRange) { }
 	
@@ -52,6 +52,13 @@ struct ThemeInfo {
 
 @IBDesignable
 open class SyntaxTextView: View, ViewControllerProvider {
+    
+    func colorSyntax() {
+        print("coloring syntax")
+        self.invalidateCachedTokens()
+        self.textView.invalidateCachedParagraphs()
+        self.selectionDidChange()
+    }
     func getViewController() -> UIViewController? {
         return delegate?.getViewController()
     }
@@ -303,12 +310,12 @@ open class SyntaxTextView: View, ViewControllerProvider {
 
 				textView.string = newValue
 				
-				self.didUpdateText()
+            self.colorSyntax()
 				
 			#else
 				textView.text = newValue
 				textView.setNeedsDisplay()
-				self.didUpdateText()
+				self.colorSyntax()
 			#endif
 			
 		}
@@ -316,15 +323,6 @@ open class SyntaxTextView: View, ViewControllerProvider {
 	
 	// MARK: -
 	
-	public func insertText(_ text: String) {
-		
-		if shouldChangeText(insertingText: text) {
-			
-			contentTextView.insertText(text)
-			
-		}
-
-	}
 	
 	#if os(iOS)
 
@@ -357,7 +355,7 @@ open class SyntaxTextView: View, ViewControllerProvider {
             textView.theme = theme
 			textView.font = theme.font
 			
-			didUpdateText()
+            self.colorSyntax()
 		}
 	}
 	
@@ -526,10 +524,10 @@ open class SyntaxTextView: View, ViewControllerProvider {
 
 			if token.isEditorPlaceholder {
 				
-				let startRange = NSRange(location: range.lowerBound, length: 2)
-				let endRange = NSRange(location: range.upperBound - 2, length: 2)
+                let startRange = NSRange(location: range.lowerBound, length: token.placeHolderBracketSize)
+				let endRange = NSRange(location: range.upperBound - token.placeHolderBracketSize, length: token.placeHolderBracketSize)
 				
-				let contentRange = NSRange(location: range.lowerBound + 2, length: range.length - 4)
+				let contentRange = NSRange(location: range.lowerBound + token.placeHolderBracketSize, length: range.length - token.placeHolderBracketSize)
 				
                 var attr = [NSAttributedString.Key: Any]()
 				

@@ -22,7 +22,9 @@ public protocol Token {
 	
 	/// The range of the token in the source string.
 	var range: Range<String.Index> { get }
-	
+    
+    /// The number of characters on each side of a placeholder (((placeholder))) should return 3
+    var placeHolderBracketSize: Int { get }
 }
 
 struct CachedToken {

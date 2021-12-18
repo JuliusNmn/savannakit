@@ -58,10 +58,10 @@ public extension NSMutableAttributedString {
 			
 			if token.isEditorPlaceholder {
 				
-				let startRange = NSRange(location: range.lowerBound, length: 2)
-				let endRange = NSRange(location: range.upperBound - 2, length: 2)
+                let startRange = NSRange(location: range.lowerBound, length: token.placeHolderBracketSize)
+				let endRange = NSRange(location: range.upperBound - token.placeHolderBracketSize, length: token.placeHolderBracketSize)
 				
-				let contentRange = NSRange(location: range.lowerBound + 2, length: range.length - 4)
+				let contentRange = NSRange(location: range.lowerBound + token.placeHolderBracketSize, length: range.length - 2 * token.placeHolderBracketSize)
 				
                 var attr = [NSAttributedString.Key: Any]()
 				

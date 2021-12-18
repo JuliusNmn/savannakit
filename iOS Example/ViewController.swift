@@ -27,7 +27,7 @@ class ViewController: UIViewController {
 							"""
         
         let issue1 = CodeIssue(message: "Error description", line: 1, charStart: 4, charEnd: 8, type: .Error)
-        let issue2 = CodeIssue(message: "Warning description", line: 2, charStart: 4, charEnd: 8, type: .Warning)
+        let issue2 = CodeIssue(message: "Warning description with very long text. it needs to be long enough to cause a wrap in any case. lets goooo", line: 2, charStart: 4, charEnd: 8, type: .Warning)
                                                                       
         syntaxTextView.setCodeIssues([issue1 , issue2])
 	}
@@ -35,10 +35,9 @@ class ViewController: UIViewController {
 
 extension ViewController: SyntaxTextViewDelegate {
 	
-	func didChangeText(_ syntaxTextView: SyntaxTextView) {
-		
-		
-	}
+    func didEditText(syntaxTextView: SyntaxTextView, range: NSRange, text: String) {
+        print("insert \(range) \"\(text)\"")
+    }
 	
 	func didChangeSelectedRange(_ syntaxTextView: SyntaxTextView, selectedRange: NSRange) {
 		
@@ -96,6 +95,9 @@ enum MyTokenType {
 }
 
 struct MyToken: Token {
+    
+    var placeHolderBracketSize: Int = 3
+    
 	
 	let type: MyTokenType
 	

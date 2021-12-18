@@ -21,6 +21,7 @@ class CodeIssuesPopoverViewController : UIViewController {
         
         let textView = UITextView(frame: self.view.frame)
         textView.isEditable = false
+        textView.textContainer.lineBreakMode = .byWordWrapping
         self.view.addSubview(textView)
         
         textView.textAlignment = .left

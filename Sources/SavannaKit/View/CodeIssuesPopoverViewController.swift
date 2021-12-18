@@ -27,8 +27,12 @@ class CodeIssuesPopoverViewController : UIViewController {
         textView.textAlignment = .left
         textView.clipsToBounds = true
         textView.layer.cornerRadius = 10.0
+        textView.translatesAutoresizingMaskIntoConstraints = false
         textView.contentInset = UIEdgeInsets(top: 20, left: 10, bottom: 10, right: 10)
         textView.topAnchor.constraint(equalTo: self.view.layoutMarginsGuide.topAnchor).isActive = true
+        textView.bottomAnchor.constraint(equalTo: self.view.layoutMarginsGuide.bottomAnchor).isActive = true
+        textView.leadingAnchor.constraint(equalTo: self.view.layoutMarginsGuide.leadingAnchor).isActive = true
+        textView.trailingAnchor.constraint(equalTo: self.view.layoutMarginsGuide.trailingAnchor).isActive = true
         
         var issuesStr = NSMutableAttributedString()
         for i in issues {

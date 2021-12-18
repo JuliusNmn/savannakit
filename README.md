@@ -21,6 +21,9 @@
 <a href="https://paypal.me/louisdhauwe"><img src="https://img.shields.io/badge/Donate-PayPal-green.svg?style=flat" alt="Donate via PayPal"/></a>
 </p>
 
+- Added support to display code warnings/errors
+- improved edit callback
+
 ## About
 SavannaKit is a high-performance, protocol oriented, framework for creating native IDEs for iOS and macOS, written in Swift. 
 

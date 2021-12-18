@@ -20,12 +20,13 @@ protocol InnerTextViewDelegate: class {
 }
 
 
-class InnerTextView: TextView, UIPopoverPresentationControllerDelegate {
+class InnerTextView: TextView, UIPopoverPresentationControllerDelegate, UIGestureRecognizerDelegate {
     
     override init(frame: CGRect, textContainer: NSTextContainer?) {
         super.init(frame: frame, textContainer: textContainer)
         
         let r = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        r.delegate = self
         addGestureRecognizer(r)
     }
     
@@ -36,6 +37,11 @@ class InnerTextView: TextView, UIPopoverPresentationControllerDelegate {
     // we need access to the view controller to display the cde issue popover
     // this is in innertextview instead of syntaxtextview because innertextview keeps track of line numbers/paragraphs
     var viewControllerProvider: ViewControllerProvider?
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        let location = touch.location(in: self)
+        return location.x < gutterWidth
+    }
     
     @objc
     func handleTap(from recognizer: UITapGestureRecognizer) {
@@ -78,7 +84,6 @@ class InnerTextView: TextView, UIPopoverPresentationControllerDelegate {
             popoverPresentationController.sourceView = self
             popoverPresentationController.sourceRect = CGRect(origin: paragraph.rect.origin, size: CGSize(width: gutterWidth, height: paragraph.rect.height))
             popoverPresentationController.delegate = self
-            
             viewControllerProvider?.getViewController()?.present(popoverContentController, animated: true, completion: nil)
             
         }

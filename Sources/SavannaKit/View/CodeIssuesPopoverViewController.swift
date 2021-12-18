@@ -17,11 +17,18 @@ class CodeIssuesPopoverViewController : UIViewController {
     }
     
     override func viewDidLoad() {
-        let insetFrame = self.view.frame.insetBy(dx: 10, dy: 20)
-        let textView = UITextView(frame: CGRect(origin: CGPoint(x: 10, y: 10), size: insetFrame.size))
-        textView.textAlignment = .left
+        let insetFrame = self.view.safeAreaLayoutGuide.layoutFrame
         
+        let textView = UITextView(frame: self.view.frame)
+        textView.isEditable = false
         self.view.addSubview(textView)
+        
+        textView.textAlignment = .left
+        textView.clipsToBounds = true
+        textView.layer.cornerRadius = 10.0
+        textView.contentInset = UIEdgeInsets(top: 20, left: 10, bottom: 10, right: 10)
+        textView.topAnchor.constraint(equalTo: self.view.layoutMarginsGuide.topAnchor).isActive = true
+        
         var issuesStr = NSMutableAttributedString()
         for i in issues {
             let line = NSMutableAttributedString(string: i.message + "\n")
@@ -35,7 +42,7 @@ class CodeIssuesPopoverViewController : UIViewController {
                     break
             }
             
-            line.addAttributes([.backgroundColor:color, .foregroundColor:UIColor.white], range: NSRange(location: 0, length: line.length))
+            line.addAttributes([.backgroundColor:color], range: NSRange(location: 0, length: line.length))
             
             issuesStr.append(line)
         }

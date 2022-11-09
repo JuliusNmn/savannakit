@@ -38,10 +38,10 @@ class InnerTextView: TextView, UIPopoverPresentationControllerDelegate, UIGestur
     // this is in innertextview instead of syntaxtextview because innertextview keeps track of line numbers/paragraphs
     var viewControllerProvider: ViewControllerProvider?
     
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        let location = touch.location(in: self)
-        return location.x < gutterWidth
-    }
+    //func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+    //    let location = touch.location(in: self)
+    //    return location.x < gutterWidth
+    //}
     
     @objc
     func handleTap(from recognizer: UITapGestureRecognizer) {

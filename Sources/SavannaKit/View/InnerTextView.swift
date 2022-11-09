@@ -42,7 +42,9 @@ class InnerTextView: TextView, UIPopoverPresentationControllerDelegate, UIGestur
     //    let location = touch.location(in: self)
     //    return location.x < gutterWidth
     //}
-    
+    func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWithGestureRecognizer otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
     @objc
     func handleTap(from recognizer: UITapGestureRecognizer) {
         

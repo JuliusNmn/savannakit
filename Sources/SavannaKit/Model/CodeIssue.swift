@@ -13,7 +13,7 @@ public enum CodeIssueType {
     case Warning
 }
 
-public struct CodeIssue {
+public class CodeIssue {
     public let message: String
     public let line: Int
     public let charStart: Int

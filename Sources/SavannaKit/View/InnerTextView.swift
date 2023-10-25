@@ -52,12 +52,13 @@ class InnerTextView: TextView, UIPopoverPresentationControllerDelegate, UIGestur
         // if an issue exists, show a popul
         let location = recognizer.location(in: self)
         
-        if location.x < gutterWidth {
+        if location.x > bounds.width - issueIconSize {
             guard let paragraphs = cachedParagraphs else { return }
             for p in paragraphs {
                 if location.y < p.rect.maxY && location.y > p.rect.minY {
                     if !p.issues.isEmpty {
-                        displayIssuesPopover(for: p)
+                        //displayIssuesPopover(for: p)
+                        (viewControllerProvider?.getViewController() as? SyntaxTextViewDelegate)?.issueIconTapped(issues: p.issues, view: self, issueIconRect: CGRect(origin: CGPoint(x: bounds.width - issueIconSize , y: p.rect.minY), size: CGSize(width: issueIconSize, height: issueIconSize)))
                     }
                     break
                 }
@@ -65,6 +66,9 @@ class InnerTextView: TextView, UIPopoverPresentationControllerDelegate, UIGestur
         }
     }
     
+    let issueIconOversize = 2.0
+    
+    var issueIconSize: Double { return 2 * issueIconOversize + (theme?.font.pointSize ?? 14) }
     var issues: [CodeIssue] = []
     
     func setCodeIssues(_ issues: [CodeIssue]) {
@@ -121,6 +125,7 @@ class InnerTextView: TextView, UIPopoverPresentationControllerDelegate, UIGestur
 	var isCursorFloating = false
 	
 	override func beginFloatingCursor(at point: CGPoint) {
+        print("begin float")
 		super.beginFloatingCursor(at: point)
 		
 		isCursorFloating = true
@@ -129,6 +134,8 @@ class InnerTextView: TextView, UIPopoverPresentationControllerDelegate, UIGestur
 	}
 	
 	override func endFloatingCursor() {
+        print("end float")
+
 		super.endFloatingCursor()
 		
 		isCursorFloating = false
@@ -145,11 +152,22 @@ class InnerTextView: TextView, UIPopoverPresentationControllerDelegate, UIGestur
 		}
 		
 		let textView = self
-
+        var paragraphs: [Paragraph]
+        
+        if let cached = textView.cachedParagraphs {
+            
+            paragraphs = cached
+            
+        } else {
+            
+            paragraphs = generateParagraphs(for: textView, flipRects: false, issues: issues)
+            textView.cachedParagraphs = paragraphs
+            
+        }
 		if theme.lineNumbersStyle == nil  {
 
 			hideGutter()
-
+            theme.backgroundColor.setFill()
 			let gutterRect = CGRect(x: 0, y: rect.minY, width: textView.gutterWidth, height: rect.height)
 			let path = BezierPath(rect: gutterRect)
 			path.fill()
@@ -164,18 +182,7 @@ class InnerTextView: TextView, UIPopoverPresentationControllerDelegate, UIGestur
 			
 			textView.updateGutterWidth(for: maxNumberOfDigits)
             
-            var paragraphs: [Paragraph]
             
-            if let cached = textView.cachedParagraphs {
-                
-                paragraphs = cached
-                
-            } else {
-                
-                paragraphs = generateParagraphs(for: textView, flipRects: false, issues: issues)
-                textView.cachedParagraphs = paragraphs
-                
-            }
 			
 			theme.gutterStyle.backgroundColor.setFill()
 			
@@ -187,6 +194,7 @@ class InnerTextView: TextView, UIPopoverPresentationControllerDelegate, UIGestur
 			
             
 		}
+        drawDiagnosticMarkers(paragraphs, in: rect, for: self)
 		
         
         

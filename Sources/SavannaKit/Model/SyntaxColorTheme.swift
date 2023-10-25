@@ -8,6 +8,7 @@
 
 import Foundation
 import CoreGraphics
+import UIKit
 
 public struct LineNumbersStyle {
 	
@@ -47,7 +48,12 @@ public protocol SyntaxColorTheme {
 	
 	var backgroundColor: Color { get }
 
+    var warningIcon: UIImage { get }
+    var errorIcon: UIImage { get }
+    
     func globalAttributes() -> [NSAttributedString.Key: Any]
 
     func attributes(for token: Token) -> [NSAttributedString.Key: Any]
+    
+    
 }

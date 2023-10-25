@@ -218,7 +218,28 @@ extension SyntaxTextView {
 #endif
 
 extension SyntaxTextView {
-
+    func getClosingBracket(c : String) -> String? {
+        switch c {
+        case "{":
+            return "}"
+        case "[":
+            return "]"
+        case "(":
+            return ")"
+        case "\"":
+            return "\""
+        default:
+            return nil
+        }
+    }
+    
+    public func insertTextAtCursor(_ string: String) {
+        let range = textView.selectedRange
+        if shouldChangeText(replaceRange: range, insertingText: string) {
+            textView.insertText(string)
+        }
+    }
+    
     func shouldChangeText(replaceRange: NSRange, insertingText: String) -> Bool {
 
 		let selectedRange = textView.selectedRange
@@ -226,11 +247,14 @@ extension SyntaxTextView {
 		let origInsertingText = insertingText
 
 		var insertingText = insertingText
-		
+        
+        let oldText = textView.text!
+        let nsText = textView.text as NSString
+        var insertAfterCursor: String = ""
         // match indentation level
 		if insertingText == "\n" {
 			
-			let nsText = textView.text as NSString
+			
 			
 			var currentLine = nsText.substring(with: nsText.lineRange(for: textView.selectedRange))
 			
@@ -251,9 +275,20 @@ extension SyntaxTextView {
 				}
 
 			}
+            
+            if currentLine.last == "{" {
+                newLinePrefix += "  ";
+            } else if currentLine.last == "}" {
+                insertAfterCursor = "\n" + newLinePrefix
+                newLinePrefix +=  newLinePrefix + "  " + insertAfterCursor
+            }
 			
 			insertingText += newLinePrefix
 		}
+        let closingBracket = getClosingBracket(c: insertingText)
+        if let cb = closingBracket {
+            insertingText += cb
+        }
 		
 		let textStorage: NSTextStorage
 		
@@ -273,7 +308,7 @@ extension SyntaxTextView {
         
 		
 		guard let cachedTokens = cachedTokens else {
-            delegate?.didEditText(syntaxTextView: self, range: replaceRange, text: insertingText)
+            delegate?.didEditText(syntaxTextView: self, oldText: oldText, range: replaceRange, text: insertingText, newText: textStorage.string)
 			return true
 		}
 			
@@ -287,7 +322,7 @@ extension SyntaxTextView {
 				if insertingText == "", selectedRange.lowerBound == range.upperBound {
 					textStorage.replaceCharacters(in: range, with: insertingText)
 					
-                    delegate?.didEditText(syntaxTextView: self, range: range, text: "")
+                    delegate?.didEditText(syntaxTextView: self, oldText: oldText, range: range, text: "", newText: textStorage.string)
 					
 					updateSelectedRange(NSRange(location: range.lowerBound, length: 0))
                     
@@ -330,16 +365,16 @@ extension SyntaxTextView {
 					if selectedRange.location <= range.location || selectedRange.upperBound >= range.upperBound {
 						// Editor placeholder is part of larger selected text,
 						// so allow system inserting.
-                        delegate?.didEditText(syntaxTextView: self, range: selectedRange, text: insertingText)
+                        delegate?.didEditText(syntaxTextView: self, oldText: oldText, range: selectedRange, text: insertingText, newText: textStorage.string)
 						return true
 					}
 					
 					
 					textStorage.replaceCharacters(in: range, with: insertingText)
-                    delegate?.didEditText(syntaxTextView: self, range: range, text: insertingText)
+                    delegate?.didEditText(syntaxTextView: self, oldText: oldText, range: range, text: insertingText, newText: textStorage.string)
 					
 					
-					updateSelectedRange(NSRange(location: range.lowerBound + insertingText.count, length: 0))
+                    updateSelectedRange(NSRange(location: range.lowerBound + insertingText.count - ( closingBracket != nil ? 1 : 0 ) , length: 0))
                     // we have to call this manually
                     textViewDidChange(textView)
 					return false
@@ -353,16 +388,29 @@ extension SyntaxTextView {
 
 			textStorage.replaceCharacters(in: selectedRange, with: insertingText)
 			
-            delegate?.didEditText(syntaxTextView: self, range: selectedRange, text: insertingText)
+            delegate?.didEditText(syntaxTextView: self, oldText: oldText, range: selectedRange, text: insertingText, newText: textStorage.string)
 			
-			updateSelectedRange(NSRange(location: selectedRange.lowerBound + insertingText.count, length: 0))
+            updateSelectedRange(NSRange(location: selectedRange.lowerBound + insertingText.count - insertAfterCursor.count, length: 0))
 
             // we have to call this manually
             textViewDidChange(textView)
 			return false
 		}
-        
-        delegate?.didEditText(syntaxTextView: self, range: replaceRange, text: insertingText)
+        if closingBracket != nil {
+
+            textStorage.replaceCharacters(in: selectedRange, with: insertingText)
+            
+            delegate?.didEditText(syntaxTextView: self, oldText: oldText, range: selectedRange, text: insertingText, newText: textStorage.string)
+            
+            updateSelectedRange(NSRange(location: selectedRange.lowerBound + insertingText.count - 1, length: 0))
+
+            // we have to call this manually
+            textViewDidChange(textView)
+            return false
+        }
+        var dup = NSTextStorage(attributedString: textStorage)
+        dup.replaceCharacters(in: selectedRange, with: insertingText)
+        delegate?.didEditText(syntaxTextView: self, oldText: oldText, range: replaceRange, text: insertingText, newText: dup.string)
 		
 		return true
 	}

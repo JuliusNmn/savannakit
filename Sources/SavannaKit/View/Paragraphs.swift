@@ -147,7 +147,44 @@ func offsetParagraphs(_ paragraphs: [Paragraph], for textView: InnerTextView, yO
 	
 	return paragraphs
 }
-
+func drawDiagnosticMarkers(_ paragraphs: [Paragraph], in rect: CGRect, for textView: InnerTextView) {
+    
+    for paragraph in paragraphs {
+        
+        guard paragraph.rect.intersects(rect) else {
+            continue
+        }
+        
+        var drawRect = paragraph.rect
+        
+        var lineMarkerFill: UIColor?
+        
+        let isError = paragraph.issues.contains(where: { i in
+            i.type == .Error
+        })
+        let isWarning = paragraph.issues.contains(where: { i in
+            i.type == .Warning
+        })
+        
+        var drawIcon: UIImage?
+        if isError {
+            lineMarkerFill = UIColor(displayP3Red: 1.0, green: 0.1, blue: 0.05, alpha: 0.1)
+            drawIcon = textView.theme?.errorIcon
+        } else if isWarning {
+            lineMarkerFill = UIColor(displayP3Red: 1.0, green: 1.0, blue: 0.0, alpha: 0.1)
+            drawIcon = textView.theme?.warningIcon
+        }
+        lineMarkerFill?.setFill()
+        if isError || isWarning {
+            //let path = UIBezierPath(roundedRect: CGRect(x: rect.size.width - 20 + inset, y: drawRect.origin.y + inset, width: 20, height: drawRect.height - inset), cornerRadius: 5.0)
+            let path = UIBezierPath(roundedRect: CGRect(x: 0 , y: drawRect.origin.y , width: rect.size.width , height: drawRect.height+2), cornerRadius: 2.0)
+            path.fill()
+            let issueIconOversize = 2.0
+            let drawWidth = textView.issueIconSize
+            drawIcon?.draw(in: CGRect(x:  rect.size.width - drawWidth - 4 - issueIconOversize, y: drawRect.origin.y - issueIconOversize, width: drawWidth + 2*issueIconOversize, height: drawWidth+2*issueIconOversize))
+        }
+    }
+}
 func drawLineNumbers(_ paragraphs: [Paragraph], in rect: CGRect, for textView: InnerTextView) {
 	
 	guard let style = textView.theme?.lineNumbersStyle else {
@@ -181,25 +218,10 @@ func drawLineNumbers(_ paragraphs: [Paragraph], in rect: CGRect, for textView: I
 //		Color.red.withAlphaComponent(0.4).setFill()
 //		paragraph.rect.fill()
 		
-        let isError = paragraph.issues.contains(where: { i in
-            i.type == .Error
-        })
-        let isWarning = paragraph.issues.contains(where: { i in
-            i.type == .Warning
-        })
+        
         let inset = 1.0
         
-        if isError {
-            UIColor(displayP3Red: 1.0, green: 0.2, blue: 0.2, alpha: 0.8).setFill()
-            
-        } else if isWarning {
-            UIColor(displayP3Red: 1.0, green: 1.0, blue: 0.2, alpha: 0.8).setFill()
-        }
-        
-        if isError || isWarning {
-            let path = UIBezierPath(roundedRect: CGRect(x: 0 + inset, y: drawRect.origin.y + inset, width: gutterWidth - inset, height: drawRect.height - inset), cornerRadius: 5.0)
-            path.fill()
-        }
+       
         
 		attr.draw(in: drawRect)
 		

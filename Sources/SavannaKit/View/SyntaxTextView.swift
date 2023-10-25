@@ -17,7 +17,7 @@ import CoreGraphics
 
 public protocol SyntaxTextViewDelegate: class {
     
-    func didEditText(syntaxTextView: SyntaxTextView, range: NSRange, text: String)
+    func didEditText(syntaxTextView: SyntaxTextView, oldText: String, range: NSRange, text: String, newText: String)
 
 	func didChangeSelectedRange(_ syntaxTextView: SyntaxTextView, selectedRange: NSRange)
 	
@@ -26,13 +26,15 @@ public protocol SyntaxTextViewDelegate: class {
 	func lexerForSource(_ source: String) -> Lexer
     	
     func getViewController() -> UIViewController?
+    
+    func issueIconTapped(issues: [CodeIssue], view: UIView, issueIconRect: CGRect)
 }
 protocol ViewControllerProvider {
     func getViewController() -> UIViewController?
 }
 // Provide default empty implementations of methods that are optional.
 public extension SyntaxTextViewDelegate {
-    func didEditText(syntaxTextView: SyntaxTextView, range: NSRange, text: String) { }
+    func didEditText(syntaxTextView: SyntaxTextView, oldText: String, range: NSRange, text: String, newText: String) { }
 	
     func didChangeSelectedRange(_ syntaxTextView: SyntaxTextView, selectedRange: NSRange) { }
 	
